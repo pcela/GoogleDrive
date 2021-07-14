@@ -530,7 +530,7 @@
       var content = `
     <div class="container"><br>
     <div class="card">
-    <div class="${UI.path_nav_alert_class} d-flex align-items-center" role="alert" style="margin-bottom: 0;">Wyniki wyszukiwaniadiv>
+    <div class="${UI.path_nav_alert_class} d-flex align-items-center" role="alert" style="margin-bottom: 0;">Wyniki wyszukiwanias</div>
     <div id="list" class="list-group text-break">
     </div>
     </div>
