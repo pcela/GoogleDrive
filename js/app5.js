@@ -1,5 +1,5 @@
 // Redesigned by telegram.dog/TheFirstSpeedster at https://www.npmjs.com/package/@googledrive/index which was written by someone else, credits are given on Source Page.
-// v2.0.21
+// v2.0.25
 // Initialize the page
 function init() {
     document.siteName = $('title').html();
@@ -162,8 +162,7 @@ function nav(path) {
                 n2 = n1.replace(/\?.+/g, "$'")
                 if (n2.length > 15) {
                     n = n2.slice(0, 5) + '...';
-                }
-                else {
+                } else {
                     n = n2.slice(0, 15);
                 }
                 p += an + '/';
@@ -235,7 +234,10 @@ function requestListPath(path, params, resultCallback, authErrorCallback) {
         } else if (res && res.data) {
             if (resultCallback) resultCallback(res, path, p)
         }
-    })
+        }).fail(function(response) {
+        $('#list').html(`<div class='alert alert-danger' role='alert'> Nie można pobrać danych z serwera, coś poszło nie tak.</div></div></div>`);
+    });
+
 }
 
 /**
@@ -260,7 +262,7 @@ function requestSearch(params, resultCallback) {
 // Render file list
 function list(path) {
   var content = `<div class="container">${UI.fixed_header ?'<br>': ''}
-	<div id="update"></div>
+  <div id="update"></div>
     <div id="head_md" style="display:none; padding: 20px 20px;"></div>
     <div class="${UI.path_nav_alert_class} d-flex align-items-center" role="alert" style="margin-bottom: 0; padding-bottom: 0rem;">
   <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
@@ -890,19 +892,20 @@ function file_video(path) {
     var caption = name.slice(0, name.lastIndexOf('.'))
     var path = path;
     var url = UI.second_domain_for_dl ? UI.downloaddomain + path : window.location.origin + path;
-    var url_without_https = url.replace(/^(https?:|)\/\//,'')
+    var urlvlc = url.replace(new RegExp('\\[', 'g'), '%5B').replace(new RegExp('\\]', 'g'), '%5D');
+    var url_without_https = url.replace(/^(https?:|)\/\//, '')
     var url_base64 = btoa(url)
     $.post("",
-    function(data){
-    var obj = jQuery.parseJSON(gdidecode(read(data)));
-    var size = formatFileSize(obj.size);
-		if (obj.thumbnailLink != null){
-    var poster = obj.thumbnailLink.slice(0, -5);
-		}
-		else {
-		var poster = UI.poster;
-		}
-    var content = `
+        function(data) {
+            try {
+                var obj = jQuery.parseJSON(gdidecode(read(data)));
+                var size = formatFileSize(obj.size);
+                if (obj.thumbnailLink != null) {
+                    var poster = obj.thumbnailLink.slice(0, -5);
+                } else {
+                    var poster = UI.poster;
+                }
+                var content = `
   <div class="container text-center"><br>
   <div class="card text-center">
   <div class="text-center">
@@ -946,7 +949,7 @@ ${UI.display_drive_link ? '<a type="button" class="btn btn-info" href="https://d
     </button>
     <div class="dropdown-menu">
       <a class="dropdown-item" href="potplayer://${url}">PotPlayer</a>
-      <a class="dropdown-item" href="vlc://${url}">VLC</a>
+      <a class="dropdown-item" href="vlc://${urlvlc}">VLC</a>
       <a class="dropdown-item" href="nplayer-${url}">nPlayer</a>
       <a class="dropdown-item" href="intent://${url_without_https}#Intent;type=video/any;package=is.xyz.mpv;scheme=https;end;">mpv-android</a>
       <a class="dropdown-item" href="mpv://${url_base64}">mpv x64</a>
@@ -961,9 +964,23 @@ ${UI.display_drive_link ? '<a type="button" class="btn btn-info" href="https://d
   </div>
   `}
   </div>
-  `;$('#content').html(content);
-  });
-
+            } catch (err) {
+                var content = `
+<div class="container"><br>
+<div class="card text-center">
+    <div class="card-body text-center">
+      <div class="${UI.file_view_alert_class}" id="file_details" role="alert"><b>404.</b> That’s an error.</div>
+    </div><p>The requested URL was not found on this server. That’s all we know.</p>
+      <div class="card-text text-center">
+      <div class="btn-group text-center">
+        <a href="/" type="button" class="btn btn-primary">Homepage</a>
+      </div>
+        </div><br>
+</div>
+</div>`
+            }
+            $('#content').html(content);
+        });
 }
 
 // File display Audio |mp3|flac|m4a|wav|ogg|
@@ -1139,34 +1156,32 @@ function file_image(path) {
     // console.log(target_children)
     let targetText = '';
     if (target_children) {
-      try {
-        target_children = JSON.parse(target_children);
-        if (!Array.isArray(target_children)) {
-          target_children = []
+        try {
+            target_children = JSON.parse(target_children);
+            if (!Array.isArray(target_children)) {
+                target_children = []
+            }
+        } catch (e) {
+            console.error(e);
+            target_children = [];
         }
-      } catch (e) {
-        console.error(e);
-        target_children = [];
-      }
-      if (target_children.length > 0 && target_children.includes(path)) {
-        let len = target_children.length;
-        let cur = target_children.indexOf(path);
-        // console.log(`len = ${len}`)
-        // console.log(`cur = ${cur}`)
-        let prev_child = (cur - 1 > -1) ? target_children[cur - 1] : null;
-        let next_child = (cur + 1 < len) ? target_children[cur + 1] : null;
-          if (prev_child == null) {
-              var prevchild = false;
-          }
-          else if (prev_child.endsWith(".jpg") == true || prev_child.endsWith(".png") || prev_child.endsWith(".jpeg") || prev_child.endsWith(".gif")){
-      		    var prevchild = true;
-      		}
-          if (next_child == null) {
-              var nextchild = false;
-          }
-      		else if (next_child.endsWith(".jpg") == true || next_child.endsWith(".png") || next_child.endsWith(".jpeg") || next_child.endsWith(".gif")){
-      		    var nextchild = true;
-      		}
+        if (target_children.length > 0 && target_children.includes(path)) {
+            let len = target_children.length;
+            let cur = target_children.indexOf(path);
+            // console.log(`len = ${len}`)
+            // console.log(`cur = ${cur}`)
+            let prev_child = (cur - 1 > -1) ? target_children[cur - 1] : null;
+            let next_child = (cur + 1 < len) ? target_children[cur + 1] : null;
+            if (prev_child == null) {
+                var prevchild = false;
+            } else if (prev_child.endsWith(".jpg") == true || prev_child.endsWith(".png") || prev_child.endsWith(".jpeg") || prev_child.endsWith(".gif")) {
+                var prevchild = true;
+            }
+            if (next_child == null) {
+                var nextchild = false;
+            } else if (next_child.endsWith(".jpg") == true || next_child.endsWith(".png") || next_child.endsWith(".jpeg") || next_child.endsWith(".gif")) {
+                var nextchild = true;
+            }
             targetText = `
 
                               ${prevchild ? `<a class="btn btn-primary" href="${prev_child}?a=view" role="button">Previous</a>` : ``}
@@ -1177,10 +1192,11 @@ function file_image(path) {
     }
           }
     $.post("",
-    function(data){
-    var obj = jQuery.parseJSON(gdidecode(read(data)));
-    var size = formatFileSize(obj.size);
-    var content = `
+        function(data) {
+            try {
+                var obj = jQuery.parseJSON(gdidecode(read(data)));
+                var size = formatFileSize(obj.size);
+                var content = `
   <div class="container"><br>
   <div class="card">
   <div class="card-body text-center">
@@ -1207,9 +1223,25 @@ function file_image(path) {
   </div>
   </div>
     `;
-    // my code
-    $('#content').html(content);
-    });
+            } catch (err) {
+                var content = `
+<div class="container"><br>
+<div class="card text-center">
+    <div class="card-body text-center">
+      <div class="${UI.file_view_alert_class}" id="file_details" role="alert"><b>404.</b> That’s an error.</div>
+    </div><p>The requested URL was not found on this server. That’s all we know.</p>
+      <div class="card-text text-center">
+      <div class="btn-group text-center">
+        <a href="/" type="button" class="btn btn-primary">Homepage</a>
+      </div>
+        </div><br>
+</div>
+</div>`
+            }
+            // my code
+            $('#content').html(content);
+        });
+
     $('#leftBtn, #rightBtn').click((e) => {
         let target = $(e.target);
         if (['I', 'SPAN'].includes(e.target.nodeName)) {
