@@ -179,11 +179,7 @@ function nav(path) {
 
     html += `</div></li><li class="nav-item">
     <a class="nav-link" href="${UI.contact_link}" target="_blank">${UI.nav_link_4}</a>
-    <a class="nav-link" href="${UI.link_fb}" target="_blank">${UI.nav_link_5}</a>
-	    <li class="nav-item">
-	    <a class="nav-link" href="${UI.link_anidb}" target="_blank">${UI.nav_link_6}</a>
-	    <li class="nav-item">
-	    <a class="nav-link" href="${UI.link_chomikuj}" target="_blank">${UI.nav_link_7}</a>
+
   </li>${UI.show_logout_button ?'<li class="nav-item"><a class="nav-link" href="/logout">Logout</a></li>': ''}`;
 
     var search_text = model.is_search_page ? (model.q || '') : '';
