@@ -177,9 +177,9 @@ function nav(path) {
         }
     }
 
-    html += `</div></li><li class="nav-item">
-    <a class="nav-link" href="${UI.contact_link}" target="_blank">${UI.nav_link_4}</a>
-          <li class="nav-item">
+      html += `</div></li><li class="nav-item">
+      <a class="nav-link" href="${UI.contact_link}" target="_blank">${UI.nav_link_4}</a>
+      <li class="nav-item">
       <a class="nav-link" href="${UI.link_fb}" target="_blank">${UI.nav_link_5}</a>
 	    <li class="nav-item">
 	    <a class="nav-link" href="${UI.link_anidb}" target="_blank">${UI.nav_link_6}</a>
